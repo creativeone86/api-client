@@ -1,0 +1,19 @@
+ip: 192.168.10.10
+memory: 2048
+cpus: 1
+provider: virtualbox
+authorize: ~/.ssh/id_rsa.pub
+keys:
+    - ~/.ssh/id_rsa
+folders:
+    -
+        map: /Users/yordangeorgiev/Desktop/memiah/project
+        to: /home/vagrant/code
+sites:
+    -
+        map: memiah.test
+        to: /home/vagrant/code/public
+databases:
+    - homestead
+name: memiah
+hostname: memiah
