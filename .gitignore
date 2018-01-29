@@ -1,3 +1,4 @@
-.vargrant
+.vagrant
 vendor
 composer.lock
+.idea
