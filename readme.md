@@ -8,13 +8,14 @@
 * php vendor/bin/homestead make 
  - configure depending your setup
  - edit /etc/hosts 
-  Note: 
+  Note:
+   
   from Homestead.yaml take 
    1. sites:map value
    2. ip
    add it to /etc/hosts as follows:
    
-   {ip} {sites:map}
+{ip} {sites:map}
  
 * Run ```vagrant up```
 
