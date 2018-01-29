@@ -79,18 +79,6 @@ div.container {
   border-bottom-left-radius: 4px;
 }
 
-//@media screen and (min-width: 768px) {
-//  #adv-search {
-//    width: 500px;
-//    margin: 0 auto;
-//  }
-//  .dropdown.dropdown-lg {
-//    position: static !important;
-//  }
-//  .dropdown.dropdown-lg .dropdown-menu {
-//    min-width: 500px;
-//  }
-//}
   .dropdown.dropdown-lg {
     position: static !important;
   }
@@ -99,16 +87,13 @@ div.container {
     margin-top: 12px!important;
     right: -15px;
   }
-  //.dropdown.dropdown-lg .dropdown-menu {
-  //  min-width: 500px;
-  //}
 
-select,
-.form-control,
-.input-group,
-.input-group-addon,
-.input-group-btn,
-.btn{
+.search-wrapper select,
+.search-wrapper .form-control,
+.search-wrapper .input-group,
+.search-wrapper .input-group-addon,
+.search-wrapper .input-group-btn,
+.search-wrapper .btn{
   border: none !important;
   box-shadow: none !important;
   -webkit-border-radius: 0!important;
@@ -122,7 +107,7 @@ select,
   height: 36px;
 }
 
-.input-group-addon {
+.search-wrapper .input-group-addon {
   border: none;
   background-color: #fff;
 }
@@ -161,7 +146,7 @@ select.no-radius {
   }
 }
 
-.list-group-item {
+.search-wrapper .list-group-item {
   margin-bottom: 20px;
   padding: 30px;
 }

@@ -107,7 +107,6 @@ class ExternalApi
 	 */
 	public function setBody($body)
 	{
-//		$rawData = $this->parseBody($data);
 		$this->_body = json_encode($body);
 	}
 
@@ -151,7 +150,6 @@ class ExternalApi
 		if(is_array($query) and count($query) > 0) {
 			foreach($query as $key => $value) {
 				$key = urlencode($key);
-//				$value = urlencode($value);
 				$queryString .= "{$key}={$value}";
 
 				if($key !== count($query) - 1) {

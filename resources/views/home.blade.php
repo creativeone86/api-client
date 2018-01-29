@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <div class="container padded-horizontal">
+    <div class="container padded-horizontal search-wrapper">
         {{--<div class="row">--}}
         {{--<example-component></example-component>--}}
         {{--</div>--}}

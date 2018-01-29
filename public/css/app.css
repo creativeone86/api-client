@@ -8430,12 +8430,12 @@ div.container {
   right: -15px;
 }
 
-select,
-.form-control,
-.input-group,
-.input-group-addon,
-.input-group-btn,
-.btn {
+.search-wrapper select,
+.search-wrapper .form-control,
+.search-wrapper .input-group,
+.search-wrapper .input-group-addon,
+.search-wrapper .input-group-btn,
+.search-wrapper .btn {
   border: none !important;
   -webkit-box-shadow: none !important;
           box-shadow: none !important;
@@ -8450,7 +8450,7 @@ select,
   height: 36px;
 }
 
-.input-group-addon {
+.search-wrapper .input-group-addon {
   border: none;
   background-color: #fff;
 }
@@ -8492,7 +8492,7 @@ select.no-radius {
   }
 }
 
-.list-group-item {
+.search-wrapper .list-group-item {
   margin-bottom: 20px;
   padding: 30px;
 }
