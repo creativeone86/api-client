@@ -29,7 +29,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                            <div class="form-group{{ $errors->has('email')  || session('err.meta.errors.email') ? ' has-error' : '' }}">
                                 <label for="email" class="col-md-4 control-label">E-Mail Address</label>
 
                                 <div class="col-md-6">
@@ -40,6 +40,13 @@
                                         <span class="help-block">
                                         <strong>{{ $errors->first('email') }}</strong>
                                     </span>
+                                    @endif
+                                    @if(session('err.meta.errors.email'))
+                                        <span class="help-block">
+                                             @foreach(session('err.meta.errors.email') as $err)
+                                                <p><strong>{{ $err }}</strong></p>
+                                            @endforeach
+                                        </span>
                                     @endif
                                 </div>
                             </div>

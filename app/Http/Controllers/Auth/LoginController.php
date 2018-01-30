@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Helpers\ExternalApiException;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -59,14 +60,15 @@ class LoginController extends Controller
 		$email = $credentials['email'];
 		$password = $credentials['password'];
 
-		$this->externalApi->setAuthenticated(false);
-		$this->externalApi->setMethod('POST');
-		$this->externalApi->setUrl('auth');
-		$this->externalApi->setBody(array(
-			'username' => $email,
-			'password' => $password
-		));
+
 		try {
+			$this->externalApi->setAuthenticated(false);
+			$this->externalApi->setMethod('POST');
+			$this->externalApi->setUrl('auth');
+			$this->externalApi->setBody(array(
+				'username' => $email,
+				'password' => $password
+			));
 			$result = $this->externalApi->execute();
 			$loginResponse = $result->getData();
 			// check if user exist locally
@@ -110,8 +112,9 @@ class LoginController extends Controller
 			return $this->guard()->attempt(
 				$credentials, $request->filled('remember')
 			);
-		} catch(\Exception $e) {
-			redirect($this->redirectPath());
+		} catch(ExternalApiException $externalApiException) {
+			$data = $externalApiException->getData()->getErrors();
+			redirect('login')->with('err', $data);
 		}
 
 	}
