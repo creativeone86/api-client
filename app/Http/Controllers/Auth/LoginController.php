@@ -67,8 +67,8 @@ class LoginController extends Controller
 			'password' => $password
 		));
 		try {
-			$loginResponse = $this->externalApi->execute();
-
+			$result = $this->externalApi->execute();
+			$loginResponse = $result->getData();
 			// check if user exist locally
 			$localUser = User::where('email', $email)->first();
 
@@ -79,7 +79,8 @@ class LoginController extends Controller
 				$this->externalApi->setBody(null);
 				$this->externalApi->setUrl('me');
 				$this->externalApi->setAccessToken($loginResponse['access_token']);
-				$apiResponse = $this->externalApi->execute();
+				$result = $this->externalApi->execute();
+				$apiResponse = $result->getData();
 				$time = Carbon::parse(Carbon::now());
 				$time->addSeconds($loginResponse['expires_in']);
 				$firstName = $apiResponse['attributes']['first_name'];

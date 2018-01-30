@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Helpers\ExternalApiException;
 use Illuminate\Http\Request;
 use App\Http\Helpers\ExternalApi;
 use Illuminate\Support\Facades\Auth;
@@ -40,11 +41,13 @@ class HomeController extends Controller
 		));
 		$this->externalApi->setAccessToken($currentUser->access_token);
 		try {
-			$categories = $this->externalApi->execute();
+			$result = $this->externalApi->execute();
+			$categories = $result->getData();
 
 			// TODO get query params from request and make it more dynamic
 			$this->externalApi->setUrl('listings/filters');
-			$filters = $this->externalApi->execute();
+			$result = $this->externalApi->execute();
+			$filters = $result->getData();
 			$this->externalApi->setUrl('listings', array(
 				'filters[category]' => 'addictions',
 				'filters[distance]' => '5mi',
@@ -54,8 +57,9 @@ class HomeController extends Controller
 				'sort' => '-distance'
 
 			));
-			$listings = $this->externalApi->execute(true);
-
+			$result = $this->externalApi->execute();
+			$listings = $result->getData();
+			$pagination = $result->getPagination();
 			foreach($filters as $filter) {
 				switch($filter['attributes']['name']) {
 					case 'distance': {
@@ -65,15 +69,16 @@ class HomeController extends Controller
 				}
 			}
 
-		} catch(\Exception $e) {
+		} catch(ExternalApiException $externalApiException) {
+			$errors = $externalApiException->getData()->getErrors();
 			// todo handle exception
 		}
-
 
         return view('home', array(
         	'categories' => $categories,
 			'distanceFilters' => $distanceFilters,
-			'listings' => $listings
+			'listings' => $listings,
+			'pagination' => $pagination
 		));
     }
 }

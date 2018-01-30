@@ -3,9 +3,6 @@
 @section('content')
 
     <div class="container padded-horizontal search-wrapper">
-        {{--<div class="row">--}}
-        {{--<example-component></example-component>--}}
-        {{--</div>--}}
         <div class="row">
             <div class="col-md-8 col-xs-8 main-content">
                 <div class="row search-holder">
@@ -118,18 +115,18 @@
                 </div>
                 <!-- search container end -->
 
-                @if($listings['meta']['pagination']['total'] > 0)
+                @if($pagination['total'] > 0)
                 <div class="row padded-horizontal results-count">
                     <h4>
-                        {{$listings['meta']['pagination']['total']}}
-                        result{{$listings['meta']['pagination']['total'] > 0 ? 's' : ''}}
+                        {{$pagination['total']}}
+                        result{{$pagination['total'] > 0 ? 's' : ''}}
                     </h4>
                 </div>
                 <!-- results count end -->
 
                 <div class="row padded-horizontal">
                     <ul class="list-group">
-                        @foreach($listings['data'] as $item)
+                        @foreach($listings as $item)
                         <li class="list-group-item">
                             <div class="row">
                                 <div class="col-md-3">
@@ -149,20 +146,20 @@
                         @endforeach
                     </ul>
                 </div>
-                    @if($listings['meta']['pagination']['total_pages'] > 1)
+                    @if($pagination['total_pages'] > 1)
                         <div class="row padded-horizontal align-center">
                             <ul class="pagination">
                                 <!-- Previous Page Link -->
-                                @if($listings['meta']['pagination']['current_page'] === 1)
+                                @if($pagination['current_page'] === 1)
                                     <li class="disabled"><span>&laquo;</span></li>
                                 @else
-                                    <li><a href="?page={{$listings['meta']['pagination']['current_page'] - 1}}" rel="prev">&laquo;</a></li>
+                                    <li><a href="?page={{$pagination['current_page'] - 1}}" rel="prev">&laquo;</a></li>
                                 @endif
 
 
                             <!-- Next Page Link -->
-                                @if($listings['meta']['pagination']['current_page'] < $listings['meta']['pagination']['total_pages'])
-                                    <li><a href="?page={{ $listings['meta']['pagination']['current_page'] + 1 }}" rel="next">&raquo;</a></li>
+                                @if($pagination['current_page'] < $pagination['total_pages'])
+                                    <li><a href="?page={{ $pagination['current_page'] + 1 }}" rel="next">&raquo;</a></li>
                                 @else
                                     <li class="disabled"><span>&raquo;</span></li>
                                 @endif

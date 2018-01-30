@@ -44,8 +44,8 @@ class HasValidSession
 				));
 
 				try {
-					$refreshTokenResponse = $externalApi->execute();
-
+					$response = $externalApi->execute();
+					$refreshTokenResponse = $response->getData();
 					$time = Carbon::parse(Carbon::now());
 					$time->addSeconds($refreshTokenResponse['expires_in']);
 

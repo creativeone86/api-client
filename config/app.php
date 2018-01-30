@@ -177,6 +177,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 		Guzzler\GuzzlerServiceProvider::class,
+		'Laracasts\Utilities\JavaScript\JavaScriptServiceProvider'
     ],
 
     /*

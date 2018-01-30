@@ -9,6 +9,7 @@
 namespace App\Http\Helpers;
 
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Exception\ClientException;
 
 class ExternalApi
 {
@@ -142,8 +143,10 @@ class ExternalApi
 		$this->_accessToken = $accessToken;
 	}
 
-
-
+	/**
+	 * @param $query
+	 * @return bool|string
+	 */
 	private function parseQuery($query) {
 		$queryString = false;
 
@@ -161,7 +164,6 @@ class ExternalApi
 		return $queryString;
 	}
 
-
 	private function validate() {
 		$requiredFields = array(
 			$this->getMethod(),
@@ -172,14 +174,15 @@ class ExternalApi
 	}
 
 	/**
-	 * @throws \Exception
+	 * @param bool $getFullData
+	 * @return array|mixed
+	 * @throws \App\Http\Helpers\ExternalApiException
 	 */
-	public function execute($getFullData = false) {
-		if(!$this->validate()) throw new \Exception('Method or path not supplied.');
+	public function execute(): GenericApiModel {
+		if(!$this->validate()) return array('errors' => array('Required data not supplied.'));
 		if(is_null($this->getBody())) $this->addHeader(array('Content-Length' => 0));
 		// check authentication requirements
 		if($this->isAuthenticated()) {
-			// todo get beader token
 			$this->addHeader(array('Authorization' => 'Bearer '.$this->getAccessToken()));
 		}
 
@@ -191,25 +194,18 @@ class ExternalApi
 			$this->getBody()
 		);
 
-		$response = $client->send($request);
-		$statusCode = (int)$response->getStatusCode();
-
-		if(!in_array($statusCode, array(200, 201))) {
-			throw new \Exception($statusCode);
+		try {
+			$response = $client->send($request);
+			$body = (string)$response->getBody();
+			return new GenericApiModel(json_decode($body, true));
+		} catch(ClientException $clientException) {
+			$errBody = (string)$clientException->getResponse()->getBody();
+			throw new ExternalApiException(
+				$clientException->getMessage(),
+				new GenericApiModel(json_decode($errBody, true))
+			);
 		}
 
-		$body = (string)$response->getBody();
-		$hasValidData = strpos($body, 'data') !== false;
-
-		if(!$hasValidData) {
-			throw new \Exception('No valid data from response.');
-		}
-
-		$encodedResponse = json_decode($body, true);
-
-		return $getFullData ?
-			$encodedResponse :
-			$encodedResponse['data'];
 
 	}
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Helpers\ExternalApiException;
 use App\User;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
@@ -55,37 +56,33 @@ class RegisterController extends Controller
 		$user = null;
 		$this->validator($request->all())->validate();
 
-		$requestData = $request->all();
-		$explodedName = explode(' ', $requestData['name'], 2);
-		$firstName = $explodedName[0];
-		$lastName = isset($explodedName[1]) ?
-			$explodedName[1] :
-			'';
-		// try to register in external api
-		$this->externalApi->setAuthenticated(false);
-		$this->externalApi->setUrl('register');
-		$this->externalApi->setMethod('POST');
-		$this->externalApi->setBody(
-			array(
-				'data' => array(
-					'type' => 'users',
-					'attributes' => array(
-						'first_name' => $firstName,
-						'last_name' => $lastName,
-						'email' => $requestData['email'],
-						'password' => $requestData['password'],
-						'password_confirmation' => $requestData['password_confirmation']
+		try {
+			$requestData = $request->all();
+			$explodedName = explode(' ', $requestData['name'], 2);
+			$firstName = $explodedName[0];
+			$lastName = isset($explodedName[1]) ?
+				$explodedName[1] :
+				'';
+			// try to register in external api
+			$this->externalApi->setAuthenticated(false);
+			$this->externalApi->setUrl('register');
+			$this->externalApi->setMethod('POST');
+			$this->externalApi->setBody(
+				array(
+					'data' => array(
+						'type' => 'users',
+						'attributes' => array(
+							'first_name' => $firstName,
+							'last_name' => $lastName,
+							'email' => $requestData['email'],
+							'password' => $requestData['password'],
+							'password_confirmation' => $requestData['password_confirmation']
+						)
 					)
 				)
-			)
-		);
-
-		try {
-			$registrationResponse = $this->externalApi->execute();
-			if(!isset($registrationResponse['id'])) {
-				return redirect('register');
-			}
-
+			);
+			// do the registration
+			$this->externalApi->execute();
 			// after successful registration login the user
 			$this->externalApi->setAuthenticated(false);
 			$this->externalApi->setMethod('POST');
@@ -95,7 +92,8 @@ class RegisterController extends Controller
 				'password' => $requestData['password']
 			));
 
-			$loginResponse = $this->externalApi->execute();
+			$result = $this->externalApi->execute();
+			$loginResponse = $result->getData();
 			// check if user exist locally
 			$localUser = User::where('email', $requestData['email'])->first();
 
@@ -106,7 +104,8 @@ class RegisterController extends Controller
 				$this->externalApi->setBody(null);
 				$this->externalApi->setUrl('me');
 				$this->externalApi->setAccessToken($loginResponse['access_token']);
-				$apiResponse = $this->externalApi->execute();
+				$result = $this->externalApi->execute();
+				$apiResponse = $result->getData();
 				$time = Carbon::parse(Carbon::now());
 				$time->addSeconds($loginResponse['expires_in']);
 				$firstName = $apiResponse['attributes']['first_name'];
@@ -140,8 +139,8 @@ class RegisterController extends Controller
 			return $this->registered($request, $user)
 				?: redirect($this->redirectPath());
 
-		} catch(\Exception $e) {
-			return redirect('login');
+		} catch(ExternalApiException $externalApiException) {
+			return redirect('register')->with('err', $externalApiException->getData()->getErrors());
 		}
 
 	}
