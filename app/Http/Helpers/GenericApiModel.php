@@ -95,7 +95,8 @@ class GenericApiModel
 				"{$url}?{$nextPageQuery}" :
 				false,
 			'pages' => array(),
-			'data' => $this->getData()
+			'data' => $this->getData(),
+			'totalRecords' => $pagination['total']
 		);
 		$dotsShow = true;
 		for($i = 1; $i <= $totalPages; $i++) {

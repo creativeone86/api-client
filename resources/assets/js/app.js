@@ -28,6 +28,12 @@ function getMainContentWidth() {
 $(document).ready(function() {
 	var width = getMainContentWidth();
 	$('.dropdown.dropdown-lg .dropdown-menu').css({width});
+
+	var defaultDistance = $('#distance-select').attr('data-default');
+	var text = $("#distance-select li a[data-value='" + defaultDistance + "']").text();
+	$('#distance-button').html(text + ' <span class="caret"></span>');
+
+
 });
 
 $(window).resize(function() {

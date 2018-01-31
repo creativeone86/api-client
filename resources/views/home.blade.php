@@ -5,16 +5,17 @@
     <div class="container padded-horizontal search-wrapper">
         <div class="row">
             <div class="col-md-8 col-xs-8 main-content">
-                <div class="row search-holder">
+                <form>
+                    <div class="row search-holder">
                     <div class="col-lg-5">
                         <div class="input-group">
                             <span class="input-group-addon">
                                 <i class="fa fa-search" aria-hidden="true"></i>
                             </span>
                             <span class="select-wrapper">
-                                <select class="form-control no-radius">
+                                <select class="form-control no-radius" name="filters[category]">
                                     @foreach($categories as $category)
-                                    @if($category['attributes']['path'] === 'addictions')
+                                    @if($category['attributes']['path'] === $selectedCategory)
                                     <option
                                             value="{{$category['attributes']['path']}}"
                                             selected>
@@ -33,25 +34,26 @@
 
                     </div><!-- /.col-lg-6 -->
                     <div class="col-lg-5">
-                        <div class="input-group">
+                        <div class="input-group {{isset($err['detail']) && $err['detail'] == 'Location must be provided.' ? 'has-error' : ''}}">
                             <span class="input-group-addon">
                                 <i class="fa fa-map-marker" aria-hidden="true"></i>
                             </span>
                             <input
                                     type="text"
                                     class="form-control"
-                                    aria-label="..."
+                                    name="filters[location]"
                                     placeholder="Type location here..."
-                                    value="Camberley">
+                                    value="{{$selectedLocation ?? ''}}">
                             <div class="input-group-btn">
                                 <button
                                         type="button"
+                                        id="distance-button"
                                         class="btn btn-default dropdown-toggle border-left"
                                         data-toggle="dropdown"
                                         aria-haspopup="true"
                                         aria-expanded="false">+ 5 miles<span class="caret"></span>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
+                                <ul id="distance-select" class="dropdown-menu dropdown-menu-right" data-default="{{$selectedDistance}}">
                                     @foreach($distanceFilters as $filter)
                                     <li>
                                         <a
@@ -64,8 +66,9 @@
                                 </ul>
                                 <input
                                     type="hidden"
+                                    name="filters[distance]"
                                     id="distance-value"
-                                    value="{{$distanceFilters[0]['value']}}" />
+                                    value="{{$selectedDistance}}" />
                             </div><!-- /btn-group -->
                         </div><!-- /input-group -->
                     </div><!-- /.col-lg-6 -->
@@ -113,13 +116,23 @@
                         </div>
                     </div>
                 </div>
+                </form>
                 <!-- search container end -->
 
-                @if(count($pagination['data']))
+                @if(!isset($pagination) and isset($err))
+                    <div class="row padded-horizontal" style="padding: 50px 0">
+                            <div class="alert alert-danger">
+                                <p class="align-center">{{$err['detail']}}</p>
+                            </div>
+                    </div>
+
+                @endif
+
+                @if(isset($pagination) && $pagination['totalRecords'] > 0)
                 <div class="row padded-horizontal results-count">
                     <h4>
-                        {{count($pagination['data'])}}
-                        result{{count($pagination['data']) > 1 ? 's' : ''}}
+                        {{$pagination['totalRecords']}}
+                        result{{$pagination['totalRecords'] > 1 ? 's' : ''}}
                     </h4>
                 </div>
                 <!-- results count end -->
@@ -147,7 +160,7 @@
                     </ul>
                 </div>
 
-                    @if($pagination)
+                    @if(count($pagination['pages']) > 1)
                         <div class="row padded-horizontal align-center">
                             <ul class="pagination">
                                 {{-- Previous Page Link --}}

@@ -306,19 +306,7 @@ class ExternalApi
 		}
 	}
 
-	public function getListings($url = '', $query = null, $pageField = 'page[number]' ) {
-		$query = is_null($query) ?
-			array(
-				'filters[category]' => 'addictions',
-				'filters[distance]' => '5mi',
-				'filters[location]' => 'camberley',
-				'page[number]' => 1,
-				'page[size]' => 10,
-				'sort' => '-distance'
-
-			) :
-			$query;
-
+	public function getListings($url = '', $query = array(), $pageField = 'page[number]' ) {
 		try {
 			$this->setMethod('GET');
 			$this->setUrl('listings', $query);

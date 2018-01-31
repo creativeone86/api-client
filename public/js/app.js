@@ -11361,31 +11361,35 @@ window.toastr = __webpack_require__(38);
 
 Vue.component('error-component', __webpack_require__(40));
 var app = new Vue({
-  el: '#app'
+	el: '#app'
 });
 
 function getMainContentWidth() {
-  return $('.main-content').width() + 30;
+	return $('.main-content').width() + 30;
 }
 
 $(document).ready(function () {
-  var width = getMainContentWidth();
-  $('.dropdown.dropdown-lg .dropdown-menu').css({ width: width });
+	var width = getMainContentWidth();
+	$('.dropdown.dropdown-lg .dropdown-menu').css({ width: width });
+
+	var defaultDistance = $('#distance-select').attr('data-default');
+	var text = $("#distance-select li a[data-value='" + defaultDistance + "']").text();
+	$('#distance-button').html(text + ' <span class="caret"></span>');
 });
 
 $(window).resize(function () {
-  var width = getMainContentWidth();
-  $('.dropdown.dropdown-lg .dropdown-menu').css({ width: width });
+	var width = getMainContentWidth();
+	$('.dropdown.dropdown-lg .dropdown-menu').css({ width: width });
 });
 
 $(".dropdown-menu li a").click(function () {
-  var selText = $(this).text();
-  $(this).closest('div').find('button[data-toggle="dropdown"]').html(selText + ' <span class="caret"></span>');
+	var selText = $(this).text();
+	$(this).closest('div').find('button[data-toggle="dropdown"]').html(selText + ' <span class="caret"></span>');
 });
 
 $('.apply-distance').click(function (e) {
-  e.preventDefault();
-  $('#distance-value').val($(this).attr('data-value'));
+	e.preventDefault();
+	$('#distance-value').val($(this).attr('data-value'));
 });
 
 /***/ }),
