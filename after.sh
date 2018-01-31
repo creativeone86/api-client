@@ -25,3 +25,4 @@ php artisan key:generate
 php artisan migrate
 npm i
 npm run dev
+composer install
