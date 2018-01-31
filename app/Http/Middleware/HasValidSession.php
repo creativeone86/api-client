@@ -25,7 +25,6 @@ class HasValidSession
 	 */
 	public function handle($request, Closure $next, $guard = null)
 	{
-
 		$hasValidSession = Auth::guard($guard)->check();
 		if($hasValidSession) {
 			$user = $request->user();
@@ -34,21 +33,11 @@ class HasValidSession
 			$expiresAt = Carbon::parse($expiresAt)->timestamp;
 
 			if($expirationLimit > $expiresAt) {
-				// try to reset token
-				$externalApi = new ExternalApi();
-				$externalApi->setMethod('POST');
-				$externalApi->setUrl('auth/refresh');
-				$externalApi->setAuthenticated(false);
-				$externalApi->setBody(array(
-					'refresh_token' => $user->refresh_token
-				));
-
 				try {
-					$response = $externalApi->execute();
-					$refreshTokenResponse = $response->getData();
+					$api = new ExternalApi();
+					$refreshTokenResponse = $api->refreshToken($user->refresh_token)->getData();
 					$time = Carbon::parse(Carbon::now());
 					$time->addSeconds($refreshTokenResponse['expires_in']);
-
 					$user->access_token = $refreshTokenResponse['access_token'];
 					$user->refresh_token = $refreshTokenResponse['refresh_token'];
 					$user->expires_at = $time->toDateString();

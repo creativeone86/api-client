@@ -19,16 +19,39 @@ class ExternalApi
 	private $_url = null;
 	private $_method = null;
 	private $_body = null;
-	private $_authenticated = true;
 	private $_accessToken;
+	private $_currentUser = null;
 
-	public function __construct()
+	public function __construct($user = null)
 	{
 		$this->setHeaders(array(
 			'Content-Type' => 'application/vnd.api+json',
 			'Accept' => 'application/vnd.api+json'
 		));
+
+		if(!is_null($user)) {
+			$this->setAccessToken($user->access_token);
+			$this->setCurrentUser($user);
+		}
 	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getCurrentUser()
+	{
+		return $this->_currentUser;
+	}
+
+	/**
+	 * @param mixed $currentUser
+	 */
+	public function setCurrentUser($currentUser)
+	{
+		$this->_currentUser = $currentUser;
+	}
+
+
 
 	public function addHeader($header) {
 		$currentHeaders = $this->getHeaders();
@@ -114,18 +137,6 @@ class ExternalApi
 	/**
 	 * @return bool
 	 */
-	public function isAuthenticated()
-	{
-		return $this->_authenticated;
-	}
-
-	/**
-	 * @param bool $authenticated
-	 */
-	public function setAuthenticated($authenticated)
-	{
-		$this->_authenticated = $authenticated;
-	}
 
 	/**
 	 * @return mixed
@@ -166,17 +177,176 @@ class ExternalApi
 		return !in_array(null, $requiredFields, true);
 	}
 
+	public function refreshToken($refreshToken) {
+		$this->setMethod('POST');
+		$this->setUrl('auth/refresh');
+		$this->setBody(array('refresh_token' => $refreshToken));
+
+		try {
+			return $this->execute();
+		} catch(ExternalApiException $apiException) {
+			throw new ExternalApiException(
+				$apiException->getMessage(),
+				$apiException->getData()
+			);
+		}
+	}
+
+	public function register($firstName, $lastName, $email, $password, $confirmPwd) {
+		$this->setUrl('register');
+		$this->setMethod('POST');
+		$this->setBody(
+			array(
+				'data' => array(
+					'type' => 'users',
+					'attributes' => array(
+						'first_name' => $firstName,
+						'last_name' => $lastName,
+						'email' => $email,
+						'password' => $password,
+						'password_confirmation' => $confirmPwd
+					)
+				)
+			)
+		);
+		try {
+			return $this->execute();
+		} catch(ExternalApiException $apiException) {
+			throw new ExternalApiException(
+				$apiException->getMessage(),
+				$apiException->getData()
+			);
+		}
+	}
+
+	public function login($username, $password) {
+		$this->setMethod('POST');
+		$this->setUrl('auth');
+		$this->setBody(array(
+			'username' => $username,
+			'password' => $password
+		));
+
+		try {
+			return $this->execute();
+		} catch(ExternalApiException $apiException) {
+			throw new ExternalApiException(
+				$apiException->getMessage(),
+				$apiException->getData()
+			);
+		}
+	}
+
+	public function getMe($accessToken) {
+		$this->setAuthenticated(true);
+		$this->setMethod('GET');
+		$this->setBody(null);
+		$this->setUrl('me');
+		$this->setAccessToken($accessToken);
+
+		try {
+			return $this->execute();
+		} catch(ExternalApiException $apiException) {
+			throw new ExternalApiException(
+				$apiException->getMessage(),
+				$apiException->getData()
+			);
+		}
+	}
+
+
+	public function getCategories($pageNumber = null, $size = null) {
+		$this->setMethod('GET');
+		$this->setUrl('categories', array(
+			'page' => array(
+				'number' => is_null($pageNumber) ? 1 : $pageNumber,
+				'size' => is_null($size) ? 287 : $size
+			)
+		));
+
+		try {
+			return $this->execute();
+		} catch(ExternalApiException $apiException) {
+			throw new ExternalApiException(
+				$apiException->getMessage(),
+				$apiException->getData()
+			);
+		}
+	}
+
+	private function getFilterType($type, $filters) {
+		$filter = null;
+		$types = is_string($type) ?
+			array($type) :
+			$type;
+		foreach($filters as $item) {
+			$foundIndex = array_search($item['attributes']['name'], $types);
+			if($foundIndex !== false) {
+				$filter[$types[$foundIndex]] = $item['attributes']['options'];
+			}
+		}
+
+		return $filter;
+	}
+
+	public function getFilters($type = null) {
+		$this->setMethod('GET');
+		$this->setUrl('listings/filters');
+		try {
+			$result = $this->execute()->getData();
+
+			return is_null($type) ?
+				$result :
+				$this->getFilterType($type, $result);
+		} catch(ExternalApiException $apiException) {
+			throw new ExternalApiException(
+				$apiException->getMessage(),
+				$apiException->getData()
+			);
+		}
+	}
+
+	public function getListings($url = '', $query = null, $pageField = 'page[number]' ) {
+		$query = is_null($query) ?
+			array(
+				'filters[category]' => 'addictions',
+				'filters[distance]' => '5mi',
+				'filters[location]' => 'camberley',
+				'page[number]' => 1,
+				'page[size]' => 10,
+				'sort' => '-distance'
+
+			) :
+			$query;
+
+		try {
+			$this->setMethod('GET');
+			$this->setUrl('listings', $query);
+			$result = $this->execute();
+			return $result->getPagination($url, $query, $pageField);
+		} catch(ExternalApiException $apiException) {
+			throw new ExternalApiException(
+				$apiException->getMessage(),
+				$apiException->getData()
+			);
+		}
+
+
+	}
+
 	/**
 	 * @param bool $getFullData
-	 * @return array|mixed
+	 * @return GenericApiModel
 	 * @throws \App\Http\Helpers\ExternalApiException
 	 */
 	public function execute(): GenericApiModel {
-		if(!$this->validate()) return array('errors' => array('Required data not supplied.'));
+		if(!$this->validate()) {
+			throw new ExternalApiException('Required data not supplied', null);
+		}
 		if(is_null($this->getBody())) $this->addHeader(array('Content-Length' => 0));
 		// check authentication requirements
-		if($this->isAuthenticated()) {
-			$this->addHeader(array('Authorization' => 'Bearer '.$this->getAccessToken()));
+		if(!is_null($this->getAccessToken())) {
+			$this->addHeader(array('Authorization' => 'Bearer ' . $this->getAccessToken()));
 		}
 
 		$client = guzzle();

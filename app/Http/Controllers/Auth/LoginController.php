@@ -31,18 +31,14 @@ class LoginController extends Controller
      * @var string
      */
     protected $redirectTo = '/';
-    protected $externalApi;
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(
-    	ExternalApi $externalApi
-	)
+    public function __construct()
     {
-    	$this->externalApi = $externalApi;
         $this->middleware('guest')->except('logout');
     }
 
@@ -62,31 +58,17 @@ class LoginController extends Controller
 
 
 		try {
-			$this->externalApi->setAuthenticated(false);
-			$this->externalApi->setMethod('POST');
-			$this->externalApi->setUrl('auth');
-			$this->externalApi->setBody(array(
-				'username' => $email,
-				'password' => $password
-			));
-			$result = $this->externalApi->execute();
-			$loginResponse = $result->getData();
-			// check if user exist locally
+			$api = new ExternalApi();
+			$loginResponse = $api->login($email, $password)->getData();
 			$localUser = User::where('email', $email)->first();
 
 			if(is_null($localUser)) {
 				// get user from external api
-				$this->externalApi->setAuthenticated(true);
-				$this->externalApi->setMethod('GET');
-				$this->externalApi->setBody(null);
-				$this->externalApi->setUrl('me');
-				$this->externalApi->setAccessToken($loginResponse['access_token']);
-				$result = $this->externalApi->execute();
-				$apiResponse = $result->getData();
+				$me = $api->getMe($loginResponse['access_token'])->getData();
 				$time = Carbon::parse(Carbon::now());
 				$time->addSeconds($loginResponse['expires_in']);
-				$firstName = $apiResponse['attributes']['first_name'];
-				$lastName = $apiResponse['attributes']['last_name'];
+				$firstName = $me['attributes']['first_name'];
+				$lastName = $me['attributes']['last_name'];
 
 				$userData = array(
 					'name' => "{$firstName} {$lastName}",

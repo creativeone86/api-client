@@ -34,16 +34,13 @@ class RegisterController extends Controller
      */
     protected $redirectTo = '/';
 
-    protected $externalApi;
-
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct(ExternalApi $externalApi)
+    public function __construct()
     {
-    	$this->externalApi = $externalApi;
         $this->middleware('guest');
     }
 
@@ -54,62 +51,36 @@ class RegisterController extends Controller
 	public function register(Request $request)
 	{
 		$user = null;
-		$this->validator($request->all())->validate();
+		$requestData = $request->all();
+		$this->validator($requestData)->validate();
 
 		try {
-			$requestData = $request->all();
+			$api = new ExternalApi();
 			$explodedName = explode(' ', $requestData['name'], 2);
 			$firstName = $explodedName[0];
 			$lastName = isset($explodedName[1]) ?
 				$explodedName[1] :
 				'';
-			// try to register in external api
-			$this->externalApi->setAuthenticated(false);
-			$this->externalApi->setUrl('register');
-			$this->externalApi->setMethod('POST');
-			$this->externalApi->setBody(
-				array(
-					'data' => array(
-						'type' => 'users',
-						'attributes' => array(
-							'first_name' => $firstName,
-							'last_name' => $lastName,
-							'email' => $requestData['email'],
-							'password' => $requestData['password'],
-							'password_confirmation' => $requestData['password_confirmation']
-						)
-					)
-				)
+			$api->register(
+				$firstName,
+				$lastName,
+				$requestData['email'],
+				$requestData['password'],
+				$requestData['password_confirmation']
 			);
-			// do the registration
-			$this->externalApi->execute();
-			// after successful registration login the user
-			$this->externalApi->setAuthenticated(false);
-			$this->externalApi->setMethod('POST');
-			$this->externalApi->setUrl('auth');
-			$this->externalApi->setBody(array(
-				'username' => $requestData['email'],
-				'password' => $requestData['password']
-			));
 
-			$result = $this->externalApi->execute();
-			$loginResponse = $result->getData();
+			// after successful registration login the user
+			$loginResponse = $api->login($requestData['email'], $requestData['password'])->getData();
 			// check if user exist locally
 			$localUser = User::where('email', $requestData['email'])->first();
 
 			if(is_null($localUser)) {
 				// get user from external api
-				$this->externalApi->setAuthenticated(true);
-				$this->externalApi->setMethod('GET');
-				$this->externalApi->setBody(null);
-				$this->externalApi->setUrl('me');
-				$this->externalApi->setAccessToken($loginResponse['access_token']);
-				$result = $this->externalApi->execute();
-				$apiResponse = $result->getData();
+				$me = $api->getMe($loginResponse['access_token'])->getData();
 				$time = Carbon::parse(Carbon::now());
 				$time->addSeconds($loginResponse['expires_in']);
-				$firstName = $apiResponse['attributes']['first_name'];
-				$lastName = $apiResponse['attributes']['last_name'];
+				$firstName = $me['attributes']['first_name'];
+				$lastName = $me['attributes']['last_name'];
 
 				$userData = array(
 					'name' => "{$firstName} {$lastName}",
