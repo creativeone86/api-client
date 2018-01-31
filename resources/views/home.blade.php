@@ -115,18 +115,18 @@
                 </div>
                 <!-- search container end -->
 
-                @if($pagination['total'] > 0)
+                @if(count($pagination['data']))
                 <div class="row padded-horizontal results-count">
                     <h4>
-                        {{$pagination['total']}}
-                        result{{$pagination['total'] > 0 ? 's' : ''}}
+                        {{count($pagination['data'])}}
+                        result{{count($pagination['data']) > 1 ? 's' : ''}}
                     </h4>
                 </div>
                 <!-- results count end -->
 
                 <div class="row padded-horizontal">
                     <ul class="list-group">
-                        @foreach($listings as $item)
+                        @foreach($pagination['data'] as $item)
                         <li class="list-group-item">
                             <div class="row">
                                 <div class="col-md-3">
@@ -146,20 +146,35 @@
                         @endforeach
                     </ul>
                 </div>
-                    @if($pagination['total_pages'] > 1)
+
+                    @if($pagination)
                         <div class="row padded-horizontal align-center">
                             <ul class="pagination">
-                                <!-- Previous Page Link -->
-                                @if($pagination['current_page'] === 1)
+                                {{-- Previous Page Link --}}
+                                @if ($pagination['onFirstPage'])
                                     <li class="disabled"><span>&laquo;</span></li>
                                 @else
-                                    <li><a href="?page={{$pagination['current_page'] - 1}}" rel="prev">&laquo;</a></li>
+                                    <li><a href="{{ $pagination['previousPageUrl'] }}" rel="prev">&laquo;</a></li>
                                 @endif
 
+                                {{-- Pagination Elements --}}
+                                @foreach ($pagination['pages'] as $element)
+                                    {{-- "Three Dots" Separator --}}
+                                    @if (isset($element['text']))
+                                        <li class="disabled"><span>{{ $element['text'] }}</span></li>
+                                    @else
+                                        @if ($element['page'] == $pagination['currentPage'])
+                                            <li class="active"><span>{{ $element['page'] }}</span></li>
+                                        @else
+                                            <li><a href="{{ $element['url'] }}">{{ $element['page'] }}</a></li>
+                                        @endif
+                                    @endif
 
-                            <!-- Next Page Link -->
-                                @if($pagination['current_page'] < $pagination['total_pages'])
-                                    <li><a href="?page={{ $pagination['current_page'] + 1 }}" rel="next">&raquo;</a></li>
+                                @endforeach
+
+                                {{-- Next Page Link --}}
+                                @if ($pagination['hasMorePages'])
+                                    <li><a href="{{ $pagination['nextPageUrl'] }}" rel="next">&raquo;</a></li>
                                 @else
                                     <li class="disabled"><span>&raquo;</span></li>
                                 @endif

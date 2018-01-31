@@ -73,7 +73,7 @@ class ExternalApi
 		$url = self::API_URL.$path;
 		$normalizedQuery = $this->parseQuery($query);
 		$url = $normalizedQuery !== false ?
-			"{$url}?{$normalizedQuery}" :
+			"{$url}{$normalizedQuery}" :
 			$url;
 
 		$this->_url = $url;
@@ -151,14 +151,7 @@ class ExternalApi
 		$queryString = false;
 
 		if(is_array($query) and count($query) > 0) {
-			foreach($query as $key => $value) {
-				$key = urlencode($key);
-				$queryString .= "{$key}={$value}";
-
-				if($key !== count($query) - 1) {
-					$queryString .= '&';
-				}
-			}
+			$queryString = '?'.http_build_query($query);
 		}
 
 		return $queryString;

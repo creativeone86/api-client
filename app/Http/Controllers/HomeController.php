@@ -27,7 +27,7 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
 
     	$currentUser = Auth::user();
@@ -36,19 +36,17 @@ class HomeController extends Controller
     	// prepare search data
 		$this->externalApi->setMethod('GET');
 		$this->externalApi->setUrl('categories', array(
-			'page[number]' => 1,
-			'page[size]' => 287
+			'page' => array(
+				'number' => 1,
+				'size' => 287
+			)
 		));
 		$this->externalApi->setAccessToken($currentUser->access_token);
 		try {
 			$result = $this->externalApi->execute();
 			$categories = $result->getData();
-
-			// TODO get query params from request and make it more dynamic
-			$this->externalApi->setUrl('listings/filters');
-			$result = $this->externalApi->execute();
-			$filters = $result->getData();
-			$this->externalApi->setUrl('listings', array(
+			$requestQuery = $request->query();
+			$defaultQuery = array(
 				'filters[category]' => 'addictions',
 				'filters[distance]' => '5mi',
 				'filters[location]' => 'camberley',
@@ -56,10 +54,21 @@ class HomeController extends Controller
 				'page[size]' => 10,
 				'sort' => '-distance'
 
-			));
+			);
+
+
+			if(count($requestQuery) === 0) {
+				$requestQuery = $defaultQuery;
+			}
+
+			$this->externalApi->setUrl('listings/filters');
 			$result = $this->externalApi->execute();
-			$listings = $result->getData();
-			$pagination = $result->getPagination();
+			$filters = $result->getData();
+
+			$this->externalApi->setUrl('listings', $requestQuery);
+			$result = $this->externalApi->execute();
+			$url = $request->url();
+			$pagination = $result->getPagination($url, $requestQuery, 'page[number]');
 			foreach($filters as $filter) {
 				switch($filter['attributes']['name']) {
 					case 'distance': {
@@ -77,7 +86,6 @@ class HomeController extends Controller
         return view('home', array(
         	'categories' => $categories,
 			'distanceFilters' => $distanceFilters,
-			'listings' => $listings,
 			'pagination' => $pagination
 		));
     }
