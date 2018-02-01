@@ -83,4 +83,20 @@ class HomeController extends Controller
 
 		return response()->json($data);
 	}
+
+	public function removeBookmark(Request $request) {
+		$api = new ExternalApi(Auth::user());
+		$uuid = $request->input('uuid');
+		$data = array();
+
+		try {
+			$api->removeBookmark($uuid);
+			$data['response'] = 204;
+		} catch(ExternalApiException $externalApiException) {
+			$data['err'] = $externalApiException->getData()->getErrors();
+		}
+
+		return response()->json($data);
+
+	}
 }

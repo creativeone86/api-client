@@ -255,9 +255,24 @@ class ExternalApi
 
 	public function addBookmark($uuid) {
 		$this->setMethod('POST');
-		$this->setUrl("articles/{$uuid}/bookmark", array(
+		$this->setUrl("listings/{$uuid}/bookmark", array(
 			'include' => 'resource'
 		));
+
+		try {
+			return $this->execute();
+		} catch(ExternalApiException $apiException) {
+			throw new ExternalApiException(
+				$apiException->getMessage(),
+				$apiException->getData()
+			);
+		}
+	}
+
+	public function removeBookmark($uuid)
+	{
+		$this->setMethod('DELETE');
+		$this->setUrl("listings/{$uuid}/bookmark");
 
 		try {
 			return $this->execute();
@@ -363,7 +378,17 @@ class ExternalApi
 		try {
 			$response = $client->send($request);
 			$body = (string)$response->getBody();
-			return new GenericApiModel(json_decode($body, true));
+			$body = json_decode($body, true);
+			$data = is_null($body) ?
+				array(
+					'data' =>
+						array(
+							'status' => 'success'
+						)
+				) :
+				$body;
+
+			return new GenericApiModel($data);
 		} catch(ClientException $clientException) {
 			$errBody = (string)$clientException->getResponse()->getBody();
 			throw new ExternalApiException(

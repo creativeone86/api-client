@@ -220,11 +220,10 @@
                                         <div class="col-md-9 listing-content">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <a class="toggle-bookmark" data-action="add-bookmark" uuid="{{$item['id']}}" href="#">
-                                                        <i class="fa fa-heart-o pull-right bookmark"
+                                                    <a class="toggle-bookmark" data-action="{{$item['meta']['bookmarked'] == 1 ? 'remove-bookmark' : 'add-bookmark'}}" uuid="{{$item['id']}}" href="#">
+                                                        <i class="fa fa-heart{{$item['meta']['bookmarked'] == 1 ? '' : '-o'}} pull-right bookmark"
                                                                   aria-hidden="true"></i>
                                                     </a>
-                                                    {{--<i class="fa fa-heart pull-right bookmark" aria-hidden="true"></i>--}}
                                                 </div>
                                             </div>
 

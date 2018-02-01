@@ -11386,23 +11386,22 @@ $(document).ready(function () {
 		//add-bookmark/edit-bookmark
 		var currentAction = $(this).attr('data-action');
 		var isNowSaving = currentAction === 'add-bookmark';
-
+		var self = this;
 		$.post('/' + currentAction, {
 			'_token': $('meta[name=csrf-token]').attr('content'),
 			uuid: uuid
 		}, function (data) {
 			var err = data.err || false;
-			var response = data.response || false;
 
 			if (err !== false) {
 				toastr.error(err.detail);
 			}
 
-			if (response !== false && typeof response.data !== 'undefined') {
+			if (typeof data.response !== 'undefined') {
 				var word = isNowSaving ? 'saved' : 'removed';
 				toastr.success('Your bookmark is ' + word);
-				$(this).attr('data-action', isNowSaving ? 'edit-bookmark' : 'add-bookmark');
-				$(this).addClass(isNowSaving ? 'fa-heart' : 'fa-heart-o').removeClass(isNowSaving ? 'fa-heart-o' : 'fa-heart');
+				$(self).attr('data-action', isNowSaving ? 'remove-bookmark' : 'add-bookmark');
+				$(self).find('i').addClass(isNowSaving ? 'fa-heart' : 'fa-heart-o').removeClass(isNowSaving ? 'fa-heart-o' : 'fa-heart');
 			}
 		});
 	});
