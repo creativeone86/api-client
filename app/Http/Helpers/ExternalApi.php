@@ -238,7 +238,6 @@ class ExternalApi
 	}
 
 	public function getMe($accessToken) {
-		$this->setAuthenticated(true);
 		$this->setMethod('GET');
 		$this->setBody(null);
 		$this->setUrl('me');

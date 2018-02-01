@@ -181,3 +181,89 @@ select.no-radius {
 .align-center {
   text-align: center;
 }
+
+.display-block {
+  display: block;
+}
+
+.padded-vertically {
+  padding-top: 40px;
+  padding-bottom: 20px;
+}
+
+.border-bottom {
+  padding-bottom: 40px;
+  border-bottom: 1px solid lightgray;
+}
+
+.button-checkbox {
+  //display: inline-block;
+  //margin-right: 20px;
+
+}
+
+.button-checkbox button.button-checkbox-element {
+  width: 100%;
+  border: 1px solid #1EA785!important;
+}
+
+.button-checkbox button.button-checkbox-element:hover,
+.button-checkbox button.button-checkbox-element:checked,
+.button-checkbox button.button-checkbox-element:active,
+.button-checkbox button.button-checkbox-element:active:focus
+{
+  border: 1px solid #1EA785 !important;
+  box-shadow: none!important;
+  background-color: #1EA785 !important;
+}
+
+input.faChkRnd, input.faChkSqr {
+  visibility: hidden;
+}
+
+input.faChkRnd:checked:after, input.faChkRnd:after,
+input.faChkSqr:checked:after, input.faChkSqr:after {
+  visibility: visible;
+  font-family: FontAwesome;
+  font-size: 25px;
+  height: 17px;
+  width: 17px;
+  position: relative;
+  top: -3px;
+  left: 0px;
+  background-color: #FFF;
+  display: inline-block;
+}
+
+input.faChkRnd:checked:after {
+  content: '\f058';
+}
+
+input.faChkRnd:after {
+  content: '\f10c';
+}
+
+input.faChkSqr:checked:after {
+  content: '\f14a';
+}
+
+input.faChkSqr:after {
+  content: '\f096';
+}
+
+.custom-checkbox {
+  width: 23px;
+  margin-top: 0;
+  height: 23px;
+  line-height: 39px!important;
+}
+
+.custom-label {
+  margin-left: 10px;
+  margin-bottom: 0;
+  line-height: 34px;
+}
+
+.with-border, #custom-input {
+  border: 1px solid lightgray !important;
+}

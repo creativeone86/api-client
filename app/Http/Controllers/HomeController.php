@@ -34,7 +34,8 @@ class HomeController extends Controller
 				'filters' => array(
 					'category' => 'addictions',
 					'distance' => '5mi',
-					'location' => 'camberley'
+					'location' => 'camberley',
+					'practitioner' => ''
 				),
 				'page' => array(
 					'number' => 1,
@@ -49,12 +50,16 @@ class HomeController extends Controller
 
 		try {
 			$data['categories'] = $api->getCategories()->getData();
-			$filters = $api->getFilters('distance');
-			$data['distanceFilters'] = $filters['distance'];
+			$filters = $api->getFilters(array('distance', 'practitioner'));
+			$data['distanceFilters'] = $filters['distance'] ?? array();
+			$data['practitionerFilters'] = $filters['practitioner'] ?? array();
 			$data = array_merge($data, array(
 				'selectedCategory' => $requestQuery['filters']['category'],
 				'selectedDistance' => $requestQuery['filters']['distance'],
-				'selectedLocation' => $requestQuery['filters']['location']
+				'selectedLocation' => $requestQuery['filters']['location'],
+				'selectedPractitioners' => explode(',', $requestQuery['filters']['practitioner'] ?? ''),
+				'selectedMemberProfessionalBody' => $requestQuery['filters']['professional_body'] ?? false,
+				'selectedKeywords' => $requestQuery['filters']['keywords'] ?? ''
 			));
 			$data['pagination'] = $api->getListings($url, $requestQuery);
 		} catch(ExternalApiException $externalApiException) {
