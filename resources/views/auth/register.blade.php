@@ -1,10 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-
+    <div class="error-wrapper">
     @if (session('err'))
-    <error-component :detail="'{{session('err.detail')}}'"></error-component>
+            <error-component :detail="'{{session('err.detail')}}'"></error-component>
     @endif
+    </div>
     <div class="container">
         <div class="row">
             <div class="col-md-8 col-md-offset-2">

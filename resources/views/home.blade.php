@@ -212,7 +212,7 @@
                     <div class="row padded-horizontal">
                         <ul class="list-group">
                             @foreach($pagination['data'] as $item)
-                                <li class="list-group-item">
+                                <li class="list-group-item item-card" data-geolocations='@json($item['attributes']['geolocations'])'>
                                     <div class="row">
                                         <div class="col-md-3">
                                             <img class="cover-photo" src="{{$item['attributes']['author']['avatar']}}">
@@ -220,7 +220,10 @@
                                         <div class="col-md-9 listing-content">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <i class="fa fa-heart-o pull-right bookmark" aria-hidden="true"></i>
+                                                    <a class="toggle-bookmark" data-action="add-bookmark" uuid="{{$item['id']}}" href="#">
+                                                        <i class="fa fa-heart-o pull-right bookmark"
+                                                                  aria-hidden="true"></i>
+                                                    </a>
                                                     {{--<i class="fa fa-heart pull-right bookmark" aria-hidden="true"></i>--}}
                                                 </div>
                                             </div>
@@ -288,9 +291,19 @@
                 @endif
 
             </div>
-            <div class="col-md-4 col-xs-4">
-                <h3>Google maps here!</h3>
+            <div class="col-md-4 col-xs-4 map-container">
+                <p>&nbsp;</p>
+                <div class="map-inner" style="position: fixed; top: 20px; right: 0; height: 400px;width: 300px;">
+                    <div id="map" style="height: 400px;"></div>
+                </div>
+
             </div>
         </div>
     </div>
+    <script>
+
+    </script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8Y5W36tpCMfGShrl1mmUm8bVhORwgWkE">
+    </script>
 @endsection

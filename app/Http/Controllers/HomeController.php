@@ -68,4 +68,19 @@ class HomeController extends Controller
 
         return view('home', $data);
     }
+
+    public function addBookmark(Request $request) {
+		$api = new ExternalApi(Auth::user());
+    	$uuid = $request->input('uuid');
+    	$data = array();
+
+    	try {
+			$data['response'] = $api->addBookmark($uuid)->getData();
+		} catch(ExternalApiException $externalApiException) {
+			$data['err'] = $externalApiException->getData()->getErrors();
+		}
+
+
+		return response()->json($data);
+	}
 }

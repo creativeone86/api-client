@@ -14,3 +14,4 @@
 Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
+Route::post('/add-bookmark', 'HomeController@addBookmark');

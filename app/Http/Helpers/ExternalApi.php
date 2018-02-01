@@ -253,6 +253,22 @@ class ExternalApi
 		}
 	}
 
+	public function addBookmark($uuid) {
+		$this->setMethod('POST');
+		$this->setUrl("articles/{$uuid}/bookmark", array(
+			'include' => 'resource'
+		));
+
+		try {
+			return $this->execute();
+		} catch(ExternalApiException $apiException) {
+			throw new ExternalApiException(
+				$apiException->getMessage(),
+				$apiException->getData()
+			);
+		}
+	}
+
 
 	public function getCategories($pageNumber = null, $size = null) {
 		$this->setMethod('GET');
